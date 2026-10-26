@@ -1,0 +1,24 @@
+--- a/api/IPlayer.cs
++++ b/api/IPlayer.cs
+@@ -14,6 +14,9 @@
+     AvatarSkin Skin { get; }
+     Vector3? Position { get; }
+     bool Alive { get; }
++
++    /// <summary>The player's current health as their client last reported it, or null when it has not reported any yet.</summary>
++    float? Health { get; }
+     bool IsAdmin { get; }
+     Team Team { get; }
+     AvatarItem Holding { get; }
+--- a/Plugins/PluginPlayer.cs
++++ b/Plugins/PluginPlayer.cs
+@@ -89,6 +89,9 @@
+         player.InWorld && session.World.Find(player.PlayAvatar) is { } avatar
+         && ((Runtime(avatar, "avatarModeTypes") as int? ?? PlayingMode) & PlayingMode) != 0;
+ 
++    public float? Health =>
++        session.World.Find(player.PlayAvatar) is { } body && Runtime(body, "health") is { } health ? (float?)Convert.ToSingle(health) : null;
++
+     bool Playing =>
+         Alive && player.ActiveSpawnRole == player.PlayAvatar
+         && !session.World.ToSnapshot().Objects.Any(obj => obj.Type == WorldObjectType.GodzillaTrigger && Colossus.Occupant(obj) == player.PlayAvatar);
